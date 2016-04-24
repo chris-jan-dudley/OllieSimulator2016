@@ -22,6 +22,7 @@
 		game.load.image('table','assets/table.png');
 		game.load.image('stress','assets/loadbar.png');
 		game.load.bitmapFont('font', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
+		//game.load.bitmapFont('desyrel', '/assets/fonts/desyrel.png', '/assets/fonts/desyrel.xml');
 	}
 
 	var cursors;
@@ -42,10 +43,17 @@
 	var stressweight;
 	var text;
 	var stresslabel;
+	var mastertimer;
+	var milliseconds = 0;
+	var seconds = 0;
+	var minutes = 0;
+	//var textStyle = { font: 'font', align: 'center'};
 
 	function create(){
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.add.sprite(0,0,'floor');
+
+		mastertimer = game.add.bitmapText((game.width/2)-107,550, 'font','00:00:00', 20);
 
 		stresslabel = game.add.bitmapText(100, 5, 'font','HackSussex Stress',15);
 		stresslabel.tint = 0x000000;
@@ -120,11 +128,13 @@
 
 		game.physics.arcade.overlap(player,tables,deStress,null,this);
 
+		updateTimer();
+
 		if (stressweight < 3){
 			stressbar.scale.setTo(stressweight,1);
 		}
 		else {
-			text.visible = 'true';
+			text.visible = true;
 			stressbar.scale.setTo(3,1);
 			player.kill();
 		}
@@ -138,70 +148,84 @@
 
 		if (cursors.left.isDown)
 		{
-			player.body.velocity.x = -190;
+			player.body.velocity.x = -200;
 		}
 		else if (cursors.right.isDown)
 		{
-			player.body.velocity.x=190;
+			player.body.velocity.x=200;
 		}
 		else if (cursors.up.isDown)
 		{
-			player.body.velocity.y=-190;
+			player.body.velocity.y=-200;
 		}
 		else if (cursors.down.isDown)
 		{
-			player.body.velocity.y=190;
+			player.body.velocity.y=200;
 		}
-		else {
+		else
 			{
 				player.body.velocity.y=0;
 				player.body.velocity.x=0;
 			}
 
 		}
+
+	function updateTimer() {
+		minutes = Math.floor(game.time.time / 60000) % 60;
+		seconds = Math.floor(game.time.time / 1000) % 60;
+		milliseconds = Math.floor(game.time.time) % 100;
+		if (milliseconds < 10){
+			milliseconds = '0' + milliseconds;
+		}
+		if (seconds < 10) {
+			seconds = '0' + seconds;
+		}
+		if (minutes < 10)    {
+			minutes = '0' + minutes;
+		}
+		mastertimer.setText(minutes + ':'+ seconds + ':' + milliseconds);
 	}
 
 	function deStress(player,tables){
-	stressweight = 1;
-  if (tables === table1){
-		timer1.destroy();
-		timer1 = game.time.create(true);
-		timer1.loop(5000, gameOver, this);
-		timer1.start();
-	}
-	else if (tables === table2){
-		timer2.destroy();
-		timer2 = game.time.create(true);
-		timer2.loop(5000, gameOver, this);
-		timer2.start();
-	}
-	else if (tables === table3){
-		timer3.destroy();
-		timer3 = game.time.create(true);
-		timer3.loop(5000, gameOver, this);
-		timer3.start();
-	}
-	else if (tables === table4){
-		timer4.destroy();
-		timer4 = game.time.create(true);
-		timer4.loop(5000, gameOver, this);
-		timer4.start();
-	}
-	else if (tables === table5){
-		timer5.destroy();
-		timer5 = game.time.create(true);
-		timer5.loop(5000, gameOver, this);
-		timer5.start();
-	}
-
+		stressweight = 1;
+		if (tables === table1){
+			timer1.destroy();
+			timer1 = game.time.create(true);
+			timer1.loop(5000, gameOver, this);
+			timer1.start();
+		}
+		else if (tables === table2){
+			timer2.destroy();
+			timer2 = game.time.create(true);
+			timer2.loop(5000, gameOver, this);
+			timer2.start();
+		}
+		else if (tables === table3){
+			timer3.destroy();
+			timer3 = game.time.create(true);
+			timer3.loop(5000, gameOver, this);
+			timer3.start();
+		}
+		else if (tables === table4){
+			timer4.destroy();
+			timer4 = game.time.create(true);
+			timer4.loop(5000, gameOver, this);
+			timer4.start();
+		}
+		else if (tables === table5){
+			timer5.destroy();
+			timer5 = game.time.create(true);
+			timer5.loop(5000, gameOver, this);
+			timer5.start();
+		}
 		tweenTint(tables,0x00cc00,0xb30000,5000);
 	}
 
-function gameOver(){
-	text.visible = 'true';
-	stressbar.scale.setTo(3,1);
-	player.kill();
-}
+	function gameOver(){
+		text.visible = 'true';
+		stressbar.scale.setTo(3,1);
+		player.kill();
+	}
 
 	function tweenTint(obj,startColor,endColor, time){
 		var colorBlend = {Step:0};
