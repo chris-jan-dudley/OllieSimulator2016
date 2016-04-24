@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Phaser - Making your first game, part 1</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="assets/style.css">
+</head>
+<body>
+	<script type="text/javascript">
+
+	var game = new Phaser.Game(500, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+	function preload() {
+		game.load.image('floor','assets/floor.png');
+		game.load.image('mhacker','assets/masterHacker.png');
+		game.load.image('table','assets/table.png');
+		game.load.image('stress','assets/loadbar.png');
+		game.load.bitmapFont('font', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
+		game.load.audio('track','assets/bensound-house.mp3');//Courtesy of Bensound
+		game.load.audio('gameover','assets/gameOver.wav');
+		game.load.audio('destrss','assets/destress.wav');
+	}
+
+	var cursors;
+	var floor;
+	var player;
+	var tables;
+	var table1;
+	var table2;
+	var table3;
+	var table4;
+	var table5;
+	var stressbar;
+	var timer1;
+	var timer2;
+	var timer3;
+	var timer4;
+	var timer5;
+	var stressweight;
+	var text;
+	var stresslabel;
+	var mastertimer;
+	var milliseconds = 0;
+	var seconds = 0;
+	var minutes = 0;
+	var startime;
+	var running;
+	var music;
+	var gameoversound;
+	var destressSound;
+	var back;
+	var restart;
+
+	function create(){
+		game.physics.startSystem(Phaser.Physics.ARCADE);
+		back = game.add.sprite(0,0,'floor');
+
+		tweenTintBackdrop(back,0XFFFFFF,0x000000,100000)
+
+		destressSound = game.add.audio('destrss');
+		music = game.add.audio('track');
+		//music.play();
+		gameoversound = game.add.audio('gameover');
+		gameoversound.loop = false;
+		running = true;
+		startime = this.time.now;
+
+		mastertimer = game.add.bitmapText((game.width/2)-107,550, 'font','00:00:00', 20);
+
+		stresslabel = game.add.bitmapText(100, 5, 'font','HackSussex Stress',15);
+		stresslabel.tint = 0x000000;
+
+		stressbar = game.add.sprite(100,0,'stress');
+		stressbar.tint = 0xb30000;
+		stressweight = 1;
+
+		tables = game.add.group();
+		tables.enableBody = true;
+
+		table1 = tables.create(70,120,'table');
+		table1.body.immovable = true;
+		table1.scale.setTo(0.5,0.5);
+		tweenTint(table1,0x00cc00,0xb30000,5000);
+
+		table2 = tables.create(70,420,'table');
+		table2.body.immovable = true;
+		table2.scale.setTo(0.5,0.5);
+		tweenTint(table2,0x00cc00,0xb30000,5000);
+
+		table3 = tables.create(310,120,'table');
+		table3.body.immovable = true;
+		table3.scale.setTo(0.5,0.5);
+		tweenTint(table3,0x00cc00,0xb30000,5000);
+
+		table4 = tables.create(310,420,'table');
+		table4.body.immovable = true;
+		table4.scale.setTo(0.5,0.5);
+		tweenTint(table4,0x00cc00,0xb30000,5000);
+
+		table5 = tables.create(190,270,'table');
+		table5.body.immovable = true;
+		table5.scale.setTo(0.5,0.5);
+		tweenTint(table5,0x00cc00,0xb30000,5000);
+
+		player = game.add.sprite(250,320,'mhacker');
+		game.physics.arcade.enable(player);
+		player.body.collideWorldBounds = true;
+		player.scale.setTo(0.4,0.4);
+
+		timer1 = game.time.create(true);
+		timer1.loop(5000, gameOver, this);
+		timer1.start();
+
+		timer2 = game.time.create(true);
+		timer2.loop(5000, gameOver, this);
+		timer2.start();
+
+		timer3 = game.time.create(true);
+		timer3.loop(5000, gameOver, this);
+		timer3.start();
+
+		timer4 = game.time.create(true);
+		timer4.loop(5000, gameOver, this);
+		timer4.start();
+
+		timer5 = game.time.create(true);
+		timer5.loop(5000, gameOver, this);
+		timer5.start();
+
+
+		text = game.add.bitmapText(45, 250, 'font','GAME OVER',40);
+		text.tint = 0xb30000;
+		text.visible = false;
+
+		restart = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+		cursors = game.input.keyboard.createCursorKeys();
+
+
+	}
+	function update(){
+
+		game.physics.arcade.overlap(player,tables,deStress,null,this);
+
+		if(running){
+			updateTimer();
+		}
+
+		if (stressweight < 3){
+			stressbar.scale.setTo(stressweight,1);
+		}
+		else {
+			text.visible = true;
+			stressbar.scale.setTo(3,1);
+			player.kill();
+		}
+
+		tables.forEach(function(table){
+			if (table.tint == 0xb30000){
+				gameOver();
+			}
+		});
+
+
+		if (cursors.left.isDown)
+		{
+			player.body.velocity.x = -200;
+		}
+		else if (cursors.right.isDown)
+		{
+			player.body.velocity.x=200;
+		}
+		else if (cursors.up.isDown)
+		{
+			player.body.velocity.y=-200;
+		}
+		else if (cursors.down.isDown)
+		{
+			player.body.velocity.y=200;
+		}
+		else
+		{
+			player.body.velocity.y=0;
+			player.body.velocity.x=0;
+		}
+		if(restart.isDown){
+			text.visible = false;
+			startime = game.time.time;
+			player.revive();
+			game.create();
+
+
+
+
+
+		}
+
+	}
+
+	function updateTimer() {
+		minutes = Math.floor((game.time.time-startime) / 60000) % 60;
+		seconds = Math.floor((game.time.time-startime) / 1000) % 60;
+		milliseconds = Math.floor((game.time.time-startime)) % 100;
+		if (milliseconds < 10){
+			milliseconds = '0' + milliseconds;
+		}
+		if (seconds < 10) {
+			seconds = '0' + seconds;
+		}
+		if (minutes < 10)    {
+			minutes = '0' + minutes;
+		}
+		mastertimer.setText(minutes + ':'+ seconds + ':' + milliseconds);
+	}
+
+	function deStress(player,tables){
+		//destressSound.play();
+		stressweight = 1;
+		if (tables === table1){
+			timer1.destroy();
+			timer1 = game.time.create(true);
+			timer1.loop(5000, gameOver, this);
+			timer1.start();
+		}
+		else if (tables === table2){
+			timer2.destroy();
+			timer2 = game.time.create(true);
+			timer2.loop(5000, gameOver, this);
+			timer2.start();
+		}
+		else if (tables === table3){
+			timer3.destroy();
+			timer3 = game.time.create(true);
+			timer3.loop(5000, gameOver, this);
+			timer3.start();
+		}
+		else if (tables === table4){
+			timer4.destroy();
+			timer4 = game.time.create(true);
+			timer4.loop(5000, gameOver, this);
+			timer4.start();
+		}
+		else if (tables === table5){
+			timer5.destroy();
+			timer5 = game.time.create(true);
+			timer5.loop(5000, gameOver, this);
+			timer5.start();
+		}
+		tweenTint(tables,0x00cc00,0xb30000,5000);
+	}
+
+	function gameOver(){
+		text.visible = 'true';
+		stressbar.scale.setTo(3,1);
+		running = false;
+		//gameoversound.play();
+		player.kill()
+	}
+
+	function tweenTint(obj,startColor,endColor, time){
+		var colorBlend = {Step:0};
+		var colorTween = game.add.tween(colorBlend).to({step:100},time);
+		colorTween.onUpdateCallback(function(){
+			obj.tint = Phaser.Color.interpolateColor(startColor,endColor,100,colorBlend.step);
+			stressweight = stressweight+((game.time.time - startime)/300000000);
+		});
+		obj.tint = startColor;
+		colorTween.start();
+	}
+
+	function tweenTintBackdrop(obj,startColor,endColor, time){
+		var colorBlend = {Step:0};
+		var colorTween = game.add.tween(colorBlend).to({step:100},time);
+		colorTween.onUpdateCallback(function(){
+			obj.tint = Phaser.Color.interpolateColor(startColor,endColor,100,colorBlend.step);
+		});
+		obj.tint = startColor;
+		colorTween.start();
+	}
+
+</script>
+
+</body>
+</html>
