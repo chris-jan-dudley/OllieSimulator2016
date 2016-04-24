@@ -21,24 +21,34 @@
 		game.load.image('mhacker','assets/masterHacker.png');
 		game.load.image('table','assets/table.png');
 		game.load.image('stress','assets/loadbar.png');
-		game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
+		game.load.bitmapFont('font', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
 	}
 
 	var cursors;
 	var floor;
 	var player;
 	var tables;
-	var table;
+	var table1;
+	var table2;
+	var table3;
+	var table4;
+	var table5;
 	var stressbar;
+	var timer1;
+	var timer2;
+	var timer3;
+	var timer4;
+	var timer5;
 	var stressweight;
-	var text
+	var text;
+	var stresslabel;
 
 	function create(){
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.add.sprite(0,0,'floor');
 
-		//text = game.add.bitmapText(200, 250, 'carrier_command','GAME OVER',34);
-
+		stresslabel = game.add.bitmapText(100, 5, 'font','HackSussex Stress',15);
+		stresslabel.tint = 0x000000;
 
 		stressbar = game.add.sprite(100,0,'stress');
 		stressbar.tint = 0xb30000;
@@ -47,30 +57,60 @@
 		tables = game.add.group();
 		tables.enableBody = true;
 
-		table = tables.create(70,100,'table');
-		table.body.immovable = true;
-		table.scale.setTo(0.5,0.5);
+		table1 = tables.create(70,120,'table');
+		table1.body.immovable = true;
+		table1.scale.setTo(0.5,0.5);
+		tweenTint(table1,0x00cc00,0xb30000,5000);
 
-		table = tables.create(70,400,'table');
-		table.body.immovable = true;
-		table.scale.setTo(0.5,0.5);
+		table2 = tables.create(70,420,'table');
+		table2.body.immovable = true;
+		table2.scale.setTo(0.5,0.5);
+		tweenTint(table2,0x00cc00,0xb30000,5000);
 
-		table = tables.create(310,100,'table');
-		table.body.immovable = true;
-		table.scale.setTo(0.5,0.5);
+		table3 = tables.create(310,120,'table');
+		table3.body.immovable = true;
+		table3.scale.setTo(0.5,0.5);
+		tweenTint(table3,0x00cc00,0xb30000,5000);
 
-		table = tables.create(310,400,'table');
-		table.body.immovable = true;
-			table.scale.setTo(0.5,0.5);
+		table4 = tables.create(310,420,'table');
+		table4.body.immovable = true;
+		table4.scale.setTo(0.5,0.5);
+		tweenTint(table4,0x00cc00,0xb30000,5000);
 
-			table = tables.create(190,250,'table');
-			table.body.immovable = true;
-				table.scale.setTo(0.5,0.5);
+		table5 = tables.create(190,270,'table');
+		table5.body.immovable = true;
+		table5.scale.setTo(0.5,0.5);
+		tweenTint(table5,0x00cc00,0xb30000,5000);
 
-		player = game.add.sprite(250,300,'mhacker');
+		player = game.add.sprite(250,320,'mhacker');
 		game.physics.arcade.enable(player);
 		player.body.collideWorldBounds = true;
 		player.scale.setTo(0.4,0.4);
+
+		timer1 = game.time.create(true);
+		timer1.loop(5000, gameOver, this);
+		timer1.start();
+
+		timer2 = game.time.create(true);
+		timer2.loop(5000, gameOver, this);
+		timer2.start();
+
+		timer3 = game.time.create(true);
+		timer3.loop(5000, gameOver, this);
+		timer3.start();
+
+		timer4 = game.time.create(true);
+		timer4.loop(5000, gameOver, this);
+		timer4.start();
+
+		timer5 = game.time.create(true);
+		timer5.loop(5000, gameOver, this);
+		timer5.start();
+
+
+		text = game.add.bitmapText(45, 250, 'font','GAME OVER',40);
+		text.tint = 0xb30000;
+		text.visible = false;
 
 		cursors = game.input.keyboard.createCursorKeys();
 
@@ -81,28 +121,36 @@
 		game.physics.arcade.overlap(player,tables,deStress,null,this);
 
 		if (stressweight < 3){
-		stressbar.scale.setTo(stressweight,1);
-	}
-	else {
-		stressbar.scale.setTo(3,1);
-	}
+			stressbar.scale.setTo(stressweight,1);
+		}
+		else {
+			text.visible = 'true';
+			stressbar.scale.setTo(3,1);
+			player.kill();
+		}
+
+		tables.forEach(function(table){
+			if (table.tint == 0xb30000){
+				gameOver();
+			}
+		});
 
 
 		if (cursors.left.isDown)
 		{
-			player.body.velocity.x = -180;
+			player.body.velocity.x = -190;
 		}
 		else if (cursors.right.isDown)
 		{
-			player.body.velocity.x=180;
+			player.body.velocity.x=190;
 		}
 		else if (cursors.up.isDown)
 		{
-			player.body.velocity.y=-180;
+			player.body.velocity.y=-190;
 		}
 		else if (cursors.down.isDown)
 		{
-			player.body.velocity.y=180;
+			player.body.velocity.y=190;
 		}
 		else {
 			{
@@ -114,31 +162,59 @@
 	}
 
 	function deStress(player,tables){
-		stressweight = 1;
-		tweenTintDestress(tables,tables.tint,0x00c00,500);
+	stressweight = 1;
+  if (tables === table1){
+		timer1.destroy();
+		timer1 = game.time.create(true);
+		timer1.loop(5000, gameOver, this);
+		timer1.start();
+	}
+	else if (tables === table2){
+		timer2.destroy();
+		timer2 = game.time.create(true);
+		timer2.loop(5000, gameOver, this);
+		timer2.start();
+	}
+	else if (tables === table3){
+		timer3.destroy();
+		timer3 = game.time.create(true);
+		timer3.loop(5000, gameOver, this);
+		timer3.start();
+	}
+	else if (tables === table4){
+		timer4.destroy();
+		timer4 = game.time.create(true);
+		timer4.loop(5000, gameOver, this);
+		timer4.start();
+	}
+	else if (tables === table5){
+		timer5.destroy();
+		timer5 = game.time.create(true);
+		timer5.loop(5000, gameOver, this);
+		timer5.start();
+	}
+
 		tweenTint(tables,0x00cc00,0xb30000,5000);
 	}
+
+function gameOver(){
+	text.visible = 'true';
+	stressbar.scale.setTo(3,1);
+	player.kill();
+}
 
 	function tweenTint(obj,startColor,endColor, time){
 		var colorBlend = {Step:0};
 		var colorTween = game.add.tween(colorBlend).to({step:100},time);
 		colorTween.onUpdateCallback(function(){
 			obj.tint = Phaser.Color.interpolateColor(startColor,endColor,100,colorBlend.step);
-			stressweight = stressweight+0.0003;
+			stressweight = stressweight+0.0002;
 		});
 		obj.tint = startColor;
 		colorTween.start();
 	}
 
-	function tweenTintDestress(obj,startColor,endColor, time){
-		var colorBlend = {Step:0};
-		var colorTween = game.add.tween(colorBlend).to({step:100},time);
-		colorTween.onUpdateCallback(function(){
-			obj.tint = Phaser.Color.interpolateColor(startColor,endColor,100,colorBlend.step);
-		});
-		obj.tint = startColor;
-		colorTween.start();
-	}
+
 
 	</script>
 
