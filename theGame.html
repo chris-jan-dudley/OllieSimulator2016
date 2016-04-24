@@ -18,16 +18,27 @@
 
 function preload() {
 	game.load.image('floor','assets/floor.png');
-	game.load.image('mhacker','assets/masterHacker.png')
+	game.load.image('mhacker','assets/masterHacker.png');
+	game.load.image('table','assets/table.png');
 }
 
 var cursors;
 var floor;
 var player;
+var tables;
+var table;
 
 function create(){
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.add.sprite(0,0,'floor');
+
+		tables = game.add.group();
+		tables.enableBody = true;
+
+		table = tables.create(300,400,'table');
+		table.body.immovable = true;
+		table = tables.create(100,100,'table');
+		table.body.immovable = true;
 
 		player = game.add.sprite(250,300,'mhacker');
 		game.physics.arcade.enable(player);
@@ -37,6 +48,8 @@ function create(){
 		cursors = game.input.keyboard.createCursorKeys();
 }
 function update(){
+	game.physics.arcade.collide(player,tables);
+
 	if (cursors.left.isDown)
 		{
 			player.body.velocity.x = -100;
