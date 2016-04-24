@@ -16,29 +16,40 @@
 
 	var game = new Phaser.Game(500, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-function preload() {
-	game.load.image('floor','assets/floor.png');
-	game.load.image('mhacker','assets/masterHacker.png');
-	game.load.image('table','assets/table.png');
-}
+	function preload() {
+		game.load.image('floor','assets/floor.png');
+		game.load.image('mhacker','assets/masterHacker.png');
+		game.load.image('table','assets/table.png');
+	}
 
-var cursors;
-var floor;
-var player;
-var tables;
-var table;
+	var cursors;
+	var floor;
+	var player;
+	var tables;
+	var table;
 
-function create(){
+	function create(){
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.add.sprite(0,0,'floor');
 
 		tables = game.add.group();
 		tables.enableBody = true;
 
-		table = tables.create(300,400,'table');
-		table.body.immovable = true;
 		table = tables.create(100,100,'table');
 		table.body.immovable = true;
+		table.scale.setTo(0.7,0.7);
+
+		table = tables.create(100,400,'table');
+		table.body.immovable = true;
+		table.scale.setTo(0.7,0.7);
+
+		table = tables.create(300,100,'table');
+		table.body.immovable = true;
+		table.scale.setTo(0.7,0.7);
+
+		table = tables.create(300,400,'table');
+		table.body.immovable = true;
+		table.scale.setTo(0.7,0.7);
 
 		player = game.add.sprite(250,300,'mhacker');
 		game.physics.arcade.enable(player);
@@ -46,11 +57,14 @@ function create(){
 		player.scale.setTo(0.6,0.6);
 
 		cursors = game.input.keyboard.createCursorKeys();
-}
-function update(){
-	game.physics.arcade.collide(player,tables);
 
-	if (cursors.left.isDown)
+
+	}
+	function update(){
+
+		game.physics.arcade.overlap(player,tables,deStress,null,this);
+
+		if (cursors.left.isDown)
 		{
 			player.body.velocity.x = -100;
 		}
@@ -73,7 +87,22 @@ function update(){
 			}
 
 		}
-}
+	}
+
+	function deStress(player,tables){
+		tables.tint = 0x00cc00;
+		tweenTint(tables,0x00cc00,0xb30000,5000);
+	}
+
+	function tweenTint(obj,startColor,endColor, time){
+		var colorBlend = {Step:0};
+		var colorTween = game.add.tween(colorBlend).to({step:100},time);
+		colorTween.onUpdateCallback(function(){
+			obj.tint = Phaser.Color.interpolateColor(startColor,endColor,100,colorBlend.step);
+		});
+		obj.tint = startColor;
+		colorTween.start();
+	}
 
 	</script>
 
