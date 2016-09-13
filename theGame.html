@@ -25,6 +25,7 @@
 		game.load.audio('track','assets/bensound-house.mp3');//Courtesy of Bensound
 		game.load.audio('gameover','assets/gameOver.wav');
 		game.load.audio('destrss','assets/destress.wav');
+		game.load.audio('music','assets/musak.wav');
 	}
 
 	var cursors;
@@ -56,6 +57,7 @@
 	var destressSound;
 	var back;
 	var restart;
+	var music;
 
 	function create(){
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -141,9 +143,19 @@
 		restart = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
 		cursors = game.input.keyboard.createCursorKeys();
-
+		
+		audioSetUp();
 
 	}
+	
+	function audioSetUp(){
+		music = game.add.audio('music');
+		music.volume = 0.3;
+  		music.allowMultiple = true;
+  		music.loop = true;
+  		music.play();
+	}
+	
 	function update(){
 
 		game.physics.arcade.overlap(player,tables,deStress,null,this);
